@@ -1,13 +1,13 @@
-from flask_sqlalchemy import SQLAlchemy
-
+from models import db
+from models.movie import Movie
+from models.user import User
 from data_manager.Interface.data_manager_interface import DataManagerInterface
-from models import User, Movie
 
 
-class SqlDataManger(DataManagerInterface):
+class SQLiteDataManager(DataManagerInterface):
 
-    def __init__(self, db_file_name):
-        self.db = SQLAlchemy(db_file_name)
+    def __init__(self):
+        self.db = db
 
     def get_all_users(self) -> list:
         return User.query.all()
