@@ -23,6 +23,7 @@ def home():
 @app.route('/users')
 def list_users():
     users = data_manager.get_all_users()
+
     return load_page("users", {"title": "Users List", "users": users})
 
 @app.route('/users/<int:user_id>')
@@ -31,7 +32,7 @@ def user_movies(user_id):
     user = data_manager.get_user_by_id(user_id)
     return load_page("user_movies", {"title": f"{user.name}'s Movies", "movies": movies, "user": user})
 
-@app.route('/add_user', methods=["GET", "POST"])
+@app.route('/add_user', methods=["GET", "POST"], endpoint="add_user")
 def add_user():
     if request.method == "POST":
         name = request.form.get("name")
