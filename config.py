@@ -7,6 +7,8 @@ load_dotenv()
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DB_NAME = os.getenv("DB_NAME", 'data/moviwebapp.sqlite')
 
+OMD_API_KEY = os.getenv("OMD_API_KEY", '')
+
 
 
 
