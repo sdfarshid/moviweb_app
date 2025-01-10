@@ -7,16 +7,13 @@ class Movie(db.Model):
     name = db.Column(db.String(200), nullable=False)  # Movie name
     director = db.Column(db.String(100), nullable=False)  # Director's name
     year = db.Column(db.Integer, nullable=False)  # Year of release
+    imdbID = db.Column(db.String(100), nullable=True)  # IMDb ID as text
+    genre = db.Column(db.Text(), nullable=True)  # Gerne  as text
     rating = db.Column(db.Float, nullable=False)  # Movie rating (e.g., 1.0 to 10.0)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    poster = db.Column(db.Text(), nullable=True)  # poster' link
 
-    def __init__(self, name, director, year, rating, user_id):
-        self.name = name
-        self.director = director
-        self.year = year
-        self.rating = rating
-        self.user_id = user_id
-
+    # Many To Many via UserMovie
+    user_movies = db.relationship('UserMovie', back_populates='movie')
 
 def __str__(self):
     return f"movie: {self.title}"
