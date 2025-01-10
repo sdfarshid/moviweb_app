@@ -27,7 +27,7 @@ class SQLiteDataManager(DataManagerInterface):
         return Movie.query.get(movie_id)
 
     def get_movie_by_name(self, movie_name: str) -> Movie:
-        return Movie.query.filter_by(name="movie_name").first()
+        return Movie.query.filter_by(name=movie_name).first()
 
     def add_user(self, user_data: dict):
         try:

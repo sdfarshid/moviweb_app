@@ -15,7 +15,7 @@ def is_exist(movie_name: str):
 
 def store_new_movie_data(response: dict) -> dict:
     return data_manager.add_movie({
-        "name": response.get("Title", ""),
+        "name": response.get("Title", "").lower(),
         "director": response.get("Director", ""),
         "year": response.get("Year", ""),
         "rating": response.get("imdbRating", ""),
@@ -50,9 +50,10 @@ def proces_add_movie(user_id: int):
         if movie is None:
             movie = add_new_movie_with_api(movie_name)
 
+
         assign_user_to_movie(user_id, movie.id)
 
         return True
-    except [FetchingError, ValueError] as error:
+    except (FetchingError, ValueError) as error:
         flash(f"Have Error in API :{error}", "danger")
         return False
