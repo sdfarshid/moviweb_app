@@ -1,12 +1,12 @@
 from typing import Union
 
 from flask import request, flash
+from models.user_movie import UserMovie
 
 from api import process_fetching_data_from_API
-from app import data_manager
 from exceptions.APIError import FetchingError
 from models.movie import Movie
-from models.user_movie import UserMovie
+from data_manager import data_manager
 
 
 def is_exist(movie_name: str):
@@ -34,26 +34,16 @@ def add_new_movie_with_api(movie_name: str) -> Union[Movie, Exception]:
     return add_movie_response.get("data")
 
 
-def assign_user_to_movie(user_id: int, movie_id: int) -> Union[UserMovie, Exception]:
-    response = data_manager.assign_user_to_movie(user_id, movie_id)
-    if response.get("status") == 'False':
-        raise ValueError(response.get("message"))
 
-    return response.get("data")
-
-
-def proces_add_movie(user_id: int):
+def proces_add_movie(movie_name: str):
     try:
-        movie_name = request.form.get("name")
         movie = is_exist(movie_name)
-
         if movie is None:
             movie = add_new_movie_with_api(movie_name)
+        if movie and movie is not None:
+            return movie
 
+        raise ValueError(f"add movie had problem, please try again")
 
-        assign_user_to_movie(user_id, movie.id)
-
-        return True
     except (FetchingError, ValueError) as error:
-        flash(f"Have Error in API :{error}", "danger")
-        return False
+        raise ValueError(f"Have Error in API :{error}")

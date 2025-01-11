@@ -1,4 +1,58 @@
-from flask import request
+from typing import Union
+
+from flask import request, flash
 
 from app import data_manager
+from exceptions.UserErrors import UserNotFoundError
+from models.user import User
+from models.user_movie import UserMovie
+from services.movie_service import proces_add_movie
 
+from data_manager import data_manager
+
+
+def user_movies_list(user_id: int):
+    user = data_manager.get_user_by_id(user_id)
+    movies = user.movies
+    return user, movies
+
+
+def get_user(user_id: int):
+    try:
+        return data_manager.get_user_by_id(user_id)
+    except UserNotFoundError:
+        raise UserNotFoundError
+
+
+
+
+def add_user_movie(user: User, movie_name: str):
+    try:
+        user_id = user.id
+        new_movie = proces_add_movie(movie_name)
+        assign_user_to_movie(user_id, new_movie.id)
+        return True
+    except ValueError as erro:
+        flash(f"{erro}", "danger")
+        raise ValueError(erro)
+
+
+def assign_user_to_movie(user_id: int, movie_id: int) -> Union[UserMovie, Exception]:
+    response = data_manager.assign_user_to_movie(user_id, movie_id)
+    if response.get("status") == 'False':
+        raise ValueError(response.get("message"))
+
+    return response.get("data")
+
+
+def delete_user_movie(user_id: int, movie_id: int):
+    data_manager.delete_user_movie(user_id, movie_id)
+
+
+def get_all_users():
+    return data_manager.get_all_users()
+
+
+def add_new_user():
+    name = request.form.get("name")
+    return data_manager.add_user({"name": name})

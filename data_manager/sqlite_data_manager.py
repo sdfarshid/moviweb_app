@@ -37,7 +37,7 @@ class SQLiteDataManager(DataManagerInterface):
         except Exception as error:
             return {"status": False, "message": f"Error: {str(error)}"}
 
-    def assign_user_to_movie(self, user_id : int, movie_id: int):
+    def assign_user_to_movie(self, user_id: int, movie_id: int):
         try:
             user_movie = UserMovie(user_id=user_id, movie_id=movie_id)
             self._commit_model_query(user_movie)
@@ -81,6 +81,17 @@ class SQLiteDataManager(DataManagerInterface):
             movie = self.get_movie_by_id(movie_id)
             if movie:
                 self._commit_model_query(movie, operation="delete")
+                return {"status": True, "message": f"Movie deleted successfully!"}
+            else:
+                return {"status": False, "message": "Movie not found"}
+        except Exception as error:
+            return {"status": False, "message": f"Error: {str(error)}"}
+
+    def delete_user_movie(self, user_id: int, movie_id: int):
+        try:
+            user_movie = UserMovie.query.filter_by(user_id=user_id, movie_id=movie_id).first()
+            if user_movie:
+                self._commit_model_query(user_movie, operation="delete")
                 return {"status": True, "message": f"Movie deleted successfully!"}
             else:
                 return {"status": False, "message": "Movie not found"}

@@ -4,18 +4,16 @@ from flask import Flask, request, redirect, url_for, render_template, flash
 import config
 from exceptions.UserErrors import UserNotFoundError
 from models import init_db, renew_db
-from data_manager.sqlite_data_manager import SQLiteDataManager
-import services.movie_service
+from models.user import User
+from services import user_service, movie_service
+from data_manager_init import data_manager
 
 app = Flask(__name__)
 
 app.config.from_object(config)
 app.secret_key = secrets.token_hex(16)
 
-
 init_db(app)
-
-data_manager = SQLiteDataManager()
 
 
 def load_page(template_name: str, args=None):
@@ -31,49 +29,55 @@ def home():
 
 @app.route('/users', endpoint="list_users")
 def list_users():
-    users = data_manager.get_all_users()
+    users = user_service.get_all_users()
     return load_page("users", {"title": "Users List", "users": users})
+
 
 @app.route('/add_user', methods=["GET", "POST"], endpoint="add_user")
 def add_user():
     if request.method == "POST":
-        name = request.form.get("name")
-        result = data_manager.add_user({"name": name})
-        flash_category = "success" if result.get("status") else "error"
-        flash(f"{result.get("message")}", f"{flash_category}")
-        return redirect(url_for("list_users"))
+        return _handel_add_user_request()
     return load_page("add_user", {"title": "Add User"})
+
+
+def _handel_add_user_request():
+    result = user_service.add_new_user()
+    flash_category = "success" if result.get("status") else "error"
+    flash(f"{result.get("message")}", f"{flash_category}")
+    return redirect(url_for("list_users"))
 
 
 @app.route('/users/<int:user_id>')
 def user_movies(user_id):
     try:
-        user = data_manager.get_user_by_id(user_id)
-        movies = user.movies
+        (user, movies) = user_service.user_movies_list(user_id)
         return load_page("user_movies", {"title": f"{user.name}'s Movies", "movies": movies, "user": user})
     except UserNotFoundError as e:
         flash(str(e), "danger")
         return redirect(url_for("list_users"))
 
+
 @app.route('/users/<int:user_id>/add_movie', methods=["GET", "POST"])
 def add_movie(user_id):
     try:
-        user = data_manager.get_user_by_id(user_id)
-        if user is None:
-            flash("User not found", "error")
-            return redirect(url_for("list_users"))
+        user = user_service.get_user(user_id)
 
         if request.method == "POST":
-            result = services.movie_service.proces_add_movie(user_id)
-            if result:
-                flash(f"The movie :  {request.form.get("name")} add  for {user.name} ", "success")
+            return _handel_add_user_movie_request(user)
 
-            return redirect(url_for("user_movies", user_id=user_id))
-        return load_page("add_movie", {"title": f"Add Movie for {user.name}", "user": user})
-
-    except UserNotFoundError as e:
+    except (UserNotFoundError, ValueError, Exception) as e:
         flash(str(e), "danger")
         return redirect(url_for("list_users"))
+
+    return load_page("add_movie", {"title": f"Add Movie for {user.name}", "user": user})
+
+
+def _handel_add_user_movie_request(user: User):
+    movie_name = request.form.get("name")
+    user_service.add_user_movie(user, movie_name)
+    flash(f"The movie :  {movie_name} add  for {user.name} ", "success")
+    return redirect(url_for("user_movies", user_id=user.id))
+
 
 @app.route('/users/<int:user_id>/update_movie/<int:movie_id>', methods=["GET", "POST"])
 def update_movie(user_id, movie_id):
@@ -94,8 +98,14 @@ def update_movie(user_id, movie_id):
 
 @app.route('/users/<int:user_id>/delete_movie/<int:movie_id>')
 def delete_movie(user_id, movie_id):
-    data_manager.delete_movie(movie_id)
-    return redirect(url_for("user_movies", user_id=user_id))
+    try:
+        user = user_service.get_user(user_id)
+        print(user.user_movies)
+        user_service.delete_user_movie(user.id, movie_id)
+        return redirect(url_for("user_movies", user_id=user.id))
+    except UserNotFoundError as e:
+        flash(str(e), "danger")
+        return redirect(url_for("user_movies"))
 
 
 if __name__ == '__main__':
