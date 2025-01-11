@@ -98,6 +98,25 @@ class SQLiteDataManager(DataManagerInterface):
         except Exception as error:
             return {"status": False, "message": f"Error: {str(error)}"}
 
+
+    def get_user_movie_record(self, user_id: int, movie_id: int) -> UserMovie:
+        return UserMovie.query.filter_by(user_id=user_id, movie_id=movie_id).first()
+
+
+    def update_user_movie_note(self, user_id: int, movie_id: int, note: str):
+        try:
+            user_movie = self.get_user_movie_record(user_id, movie_id)
+            if user_movie:
+                user_movie.note = note
+                self._commit_model_query(user_movie)
+                return {"status": True, "message": "Note updated successfully!"}
+            else:
+                return {"status": False, "message": "User-Movie record not found."}
+        except Exception as error:
+            return {"status": False, "message": f"Error: {str(error)}"}
+
+
+
     def _commit_model_query(self, model, operation="add"):
         try:
             if operation == "add":

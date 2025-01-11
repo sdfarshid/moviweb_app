@@ -11,17 +11,17 @@ from services.movie_service import proces_add_movie
 from data_manager import data_manager
 
 
-def user_movies_list(user_id: int):
-    user = data_manager.get_user_by_id(user_id)
-    movies = user.movies
-    return user, movies
-
-
 def get_user(user_id: int):
     try:
         return data_manager.get_user_by_id(user_id)
     except UserNotFoundError:
         raise UserNotFoundError
+
+
+def user_movies_list(user_id: int):
+    user = get_user(user_id)
+    movies = user.movies
+    return user, movies
 
 
 
@@ -52,6 +52,8 @@ def delete_user_movie(user_id: int, movie_id: int):
 
     return True
 
+
+
 def get_all_users():
     return data_manager.get_all_users()
 
@@ -59,3 +61,15 @@ def get_all_users():
 def add_new_user():
     name = request.form.get("name")
     return data_manager.add_user({"name": name})
+
+
+def get_user_movie_record(user_id: int, movie_id: int):
+    return data_manager.get_user_movie_record(user_id, movie_id)
+
+
+
+def update_user_movie_note(user_id: int, movie_id: int, note: str):
+    result = data_manager.update_user_movie_note(user_id, movie_id, note)
+    if result.get("status") == 'False':
+        raise ValueError(result.get("message"))
+    return True

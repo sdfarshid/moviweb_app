@@ -34,6 +34,13 @@ def add_new_movie_with_api(movie_name: str) -> Union[Movie, Exception]:
     return add_movie_response.get("data")
 
 
+def update_movie(movie_data: dict):
+    result = data_manager.update_movie(movie_data)
+    if result.get("status") == 'False':
+        raise ValueError(result.get("message"))
+
+    return True
+
 
 def proces_add_movie(movie_name: str):
     try:
@@ -47,3 +54,8 @@ def proces_add_movie(movie_name: str):
 
     except (FetchingError, ValueError) as error:
         raise ValueError(f"Have Error in API :{error}")
+
+
+def get_movie_by_id(movie_id: int):
+    return data_manager.get_movie_by_id(movie_id)
+

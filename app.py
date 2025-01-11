@@ -4,7 +4,9 @@ from flask import Flask, request, redirect, url_for, render_template, flash
 import config
 from exceptions.UserErrors import UserNotFoundError
 from models import init_db, renew_db
+from models.movie import Movie
 from models.user import User
+from models.user_movie import UserMovie
 from services import user_service, movie_service
 from data_manager_init import data_manager
 
@@ -79,23 +81,6 @@ def _handel_add_user_movie_request(user: User):
     return redirect(url_for("user_movies", user_id=user.id))
 
 
-@app.route('/users/<int:user_id>/update_movie/<int:movie_id>', methods=["GET", "POST"])
-def update_movie(user_id, movie_id):
-    movie = data_manager.get_movie_by_id(movie_id)
-    if request.method == "POST":
-        movie_data = {
-            "id": movie_id,
-            "name": request.form.get("name"),
-            "director": request.form.get("director"),
-            "year": int(request.form.get("year")),
-            "rating": float(request.form.get("rating")),
-            "user_id": user_id
-        }
-        data_manager.update_movie(movie_data)
-        return redirect(url_for("user_movies", user_id=user_id))
-    return load_page("update_movie", {"title": "Update Movie", "movie": movie})
-
-
 @app.route('/users/<int:user_id>/delete_movie/<int:movie_id>')
 def delete_movie(user_id, movie_id):
     try:
@@ -106,6 +91,51 @@ def delete_movie(user_id, movie_id):
     except UserNotFoundError as e:
         flash(str(e), "danger")
         return redirect(url_for("user_movies"))
+
+
+@app.route('/users/<int:user_id>/update_movie/<int:movie_id>', methods=["GET", "POST"])
+def update_movie(user_id, movie_id):
+    try:
+        user_movie = user_service.get_user_movie_record(user_id, movie_id)
+        if not user_movie:
+            flash("User-Movie record not found.", "danger")
+            return redirect(url_for("user_movies", user_id=user_id))
+
+        movie = user_movie.movie
+        user = user_movie.user
+
+        if request.method == "POST":
+            return _handel_update_user_movie_request(user, movie)
+
+    except UserNotFoundError as e:
+        flash(str(e), "danger")
+        return redirect(url_for("list_users"))
+
+
+    return load_page("update_movie", {
+            "title": f"Update Movie for {user_movie.user.name}",
+            "user_movie": user_movie,
+            "movie": movie,
+            "user": user,
+        })
+
+
+def _handel_update_user_movie_request(user: User, movie: Movie):
+    movie_data = {
+        "id": movie.id,
+        "name": request.form.get("name"),
+        "director": request.form.get("director"),
+        "year": int(request.form.get("year")),
+        "rating": float(request.form.get("rating")),
+    }
+
+    movie_service.update_movie(movie_data)
+
+    note = request.form.get("note")
+    user_service.update_user_movie_note(user.id, movie.id, note)
+
+    flash("Movie updated successfully.", "success")
+    return redirect(url_for("user_movies", user_id=user.id))
 
 
 if __name__ == '__main__':
