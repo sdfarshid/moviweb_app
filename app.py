@@ -100,8 +100,8 @@ def update_movie(user_id, movie_id):
 def delete_movie(user_id, movie_id):
     try:
         user = user_service.get_user(user_id)
-        print(user.user_movies)
         user_service.delete_user_movie(user.id, movie_id)
+        flash(f"Movie deleted successfully for {user.name}.", "success")
         return redirect(url_for("user_movies", user_id=user.id))
     except UserNotFoundError as e:
         flash(str(e), "danger")
