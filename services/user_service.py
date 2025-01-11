@@ -46,8 +46,11 @@ def assign_user_to_movie(user_id: int, movie_id: int) -> Union[UserMovie, Except
 
 
 def delete_user_movie(user_id: int, movie_id: int):
-    data_manager.delete_user_movie(user_id, movie_id)
+    result = data_manager.delete_user_movie(user_id, movie_id)
+    if result.get("status") == 'False':
+        raise ValueError(result.get("message"))
 
+    return True
 
 def get_all_users():
     return data_manager.get_all_users()
