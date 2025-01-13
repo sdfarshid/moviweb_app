@@ -2,7 +2,6 @@ from typing import Union
 
 from flask import request, flash
 
-from app import data_manager
 from exceptions.UserErrors import UserNotFoundError
 from models.user import User
 from models.user_movie import UserMovie

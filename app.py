@@ -6,9 +6,7 @@ from exceptions.UserErrors import UserNotFoundError
 from models import init_db, renew_db
 from models.movie import Movie
 from models.user import User
-from models.user_movie import UserMovie
 from services import user_service, movie_service
-from data_manager_init import data_manager
 
 app = Flask(__name__)
 
