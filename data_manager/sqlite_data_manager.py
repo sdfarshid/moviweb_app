@@ -1,3 +1,5 @@
+from typing import Union
+
 from exceptions.UserErrors import UserNotFoundError
 from models import db
 from models.movie import Movie
@@ -14,7 +16,7 @@ class SQLiteDataManager(DataManagerInterface):
     def get_all_users(self) -> list:
         return User.query.all()
 
-    def get_user_by_id(self, user_id: int) -> User:
+    def get_user_by_id(self, user_id: int) -> Union[User, Exception]:
         user = User.query.get(user_id)
         if user is None:
             raise UserNotFoundError(f"User not found.")
