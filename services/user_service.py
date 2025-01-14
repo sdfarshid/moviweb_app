@@ -14,7 +14,7 @@ def get_user(user_id: int):
     try:
         return data_manager.get_user_by_id(user_id)
     except UserNotFoundError:
-        raise UserNotFoundError
+        raise UserNotFoundError("User not found.")
 
 
 def user_movies_list(user_id: int):
