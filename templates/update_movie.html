@@ -4,11 +4,11 @@
 <div class="d-flex justify-content-between">
     <h1>Favorite Movies of {{ user_movie.user.name }}</h1>
     <div>
-        <a href="{{ url_for('add_movie', user_id=user.id) }}" class="btn btn-success">Add Movie</a>
+        <a href="{{ url_for('movie_bp.add_movie', user_id=user.id) }}" class="btn btn-success">Add Movie</a>
     </div>
 </div>
 
-<form method="POST" action="{{ url_for('update_movie', user_id=user_movie.user.id, movie_id=movie.id) }}">
+<form method="POST" action="{{ url_for('movie_bp.update_movie', user_id=user_movie.user.id, movie_id=movie.id) }}">
     <h2>Update Movie for {{ user_movie.user.name }}</h2>
     <div class="mb-3">
         <label for="name" class="form-label">Name</label>
@@ -28,7 +28,8 @@
     </div>
     <div class="mb-3">
         <label for="note" class="form-label">Note</label>
-        <textarea class="form-control" id="note" name="note">{{ user_movie.note }}</textarea>
+        <textarea class="form-control" id="note" name="note">{{ user_movie.note | default('') }}</textarea>
+
     </div>
     <button type="submit" class="btn btn-primary">Save Changes</button>
 </form>
