@@ -14,6 +14,7 @@ class MovieWebIntegrationTest(unittest.TestCase):
         # Setup an in-memory SQLite database
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config['TESTING'] = True
 
         # Create the application context
         self.app_context = app.app_context()

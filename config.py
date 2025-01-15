@@ -10,8 +10,6 @@ DB_NAME = os.getenv("DB_NAME", 'data/moviwebapp.sqlite')
 OMD_API_KEY = os.getenv("OMD_API_KEY", '')
 
 
-
-
 SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(BASE_DIR, DB_NAME)}'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ENGINE_OPTIONS = {"connect_args": {"timeout": 15}}
