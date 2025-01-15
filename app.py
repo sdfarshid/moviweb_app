@@ -6,14 +6,19 @@ from exceptions.UserErrors import UserNotFoundError
 from models import init_db, renew_db
 from models.movie import Movie
 from models.user import User
+from routes.movies import movie_bp
 from services import user_service, movie_service
 
 app = Flask(__name__)
-
-app.config.from_object(config)
 app.secret_key = secrets.token_hex(16)
 
+# Load configuration
+app.config.from_object(config)
+
+# Initialize the database
 init_db(app)
+
+
 
 
 def load_page(template_name: str, args=None):
@@ -24,7 +29,28 @@ def load_page(template_name: str, args=None):
 
 @app.route('/')
 def home():
-    return load_page("home", {"title": "Home"})
+    MOVIE_PER_PAG = 4
+    search_query = request.args.get('search', "")
+    sort_by = request.args.get('sort_by', 'rating')  # Default sorting by rating
+    sort_order = request.args.get('sort_order', 'asc')  # Default sorting type
+    page = request.args.get('page', 1, type=int)  # Current page number
+    per_page = request.args.get('per_page', MOVIE_PER_PAG, type=int)  # Number of items per page
+
+    movies, total, pages, current_page = movie_service.get_movies(
+        sort_by=sort_by,
+        order=sort_order,
+        search_query=search_query,
+        page=page,
+        per_page=per_page
+    )
+    args = {
+        "title": "Home",
+        "movies": movies,
+        "search_query": search_query,
+        "pages": pages,
+        "current_page": current_page,
+    }
+    return load_page("home", args)
 
 
 @app.route('/users', endpoint="list_users")

@@ -1,6 +1,8 @@
 from typing import Union
 
 from flask import request, flash
+from sqlalchemy import exists, asc, desc
+
 from models.user_movie import UserMovie
 
 from api import process_fetching_data_from_API
@@ -56,6 +58,40 @@ def proces_add_movie(movie_name: str):
         raise ValueError(f"Have Error in API :{error}")
 
 
+
+
 def get_movie_by_id(movie_id: int):
     return data_manager.get_movie_by_id(movie_id)
 
+def get_movies(sort_by: str = "rating", order: str = "asc", search_query: str = "", page: int = 1, per_page: int = 10):
+    """
+    Returns movies with pagination, ordered by a specific field (ascending or descending) and optionally filtered by name.
+    :param sort_by: The field to sort by (default: "rating").
+    :param order: The order of sorting, either "asc" or "desc" (default: "asc").
+    :param search_query: The name of the movie to search for (default: "").
+    :param page: The page number for pagination (default: 1).
+    :param per_page: The number of results per page (default: 10).
+    :return: List of movies ordered by the specified field with pagination and optionally filtered by name.
+    """
+    if order == "asc":
+        order_func = asc
+    else:
+        order_func = desc
+
+    # Filter movies which relative atliest a user
+    subquery = exists().where(UserMovie.movie_id == Movie.id)
+
+    # Make query
+    query = Movie.query.filter(subquery)
+
+    #Filter by name
+    if search_query:
+        query = query.filter(Movie.name.ilike(f"%{search_query}%"))
+
+    # add Order by
+    query = query.order_by(order_func(getattr(Movie, sort_by)))
+
+    # add Pagination
+    query = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    return query.items, query.total, query.pages, query.page
