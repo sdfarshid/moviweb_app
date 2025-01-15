@@ -19,10 +19,8 @@ def get_user(user_id: int):
 
 def user_movies_list(user_id: int):
     user = get_user(user_id)
-    movies = user.movies
-    return user, movies
-
-
+    user_movies = UserMovie.query.filter_by(user_id=user_id).all()
+    return user, [{"movie": um.movie, "note": um.note} for um in user_movies]
 
 
 def add_user_movie(user: User, movie_name: str):
@@ -31,9 +29,9 @@ def add_user_movie(user: User, movie_name: str):
         new_movie = proces_add_movie(movie_name)
         assign_user_to_movie(user_id, new_movie.id)
         return True
-    except ValueError as erro:
-        flash(f"{erro}", "danger")
-        raise ValueError(erro)
+    except ValueError as error:
+        flash(f"{error}", "danger")
+        raise ValueError(error)
 
 
 def assign_user_to_movie(user_id: int, movie_id: int) -> Union[UserMovie, Exception]:
@@ -52,7 +50,6 @@ def delete_user_movie(user_id: int, movie_id: int):
     return True
 
 
-
 def get_all_users():
     return data_manager.get_all_users()
 
@@ -64,7 +61,6 @@ def add_new_user():
 
 def get_user_movie_record(user_id: int, movie_id: int):
     return data_manager.get_user_movie_record(user_id, movie_id)
-
 
 
 def update_user_movie_note(user_id: int, movie_id: int, note: str):
