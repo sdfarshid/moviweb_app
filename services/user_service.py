@@ -54,9 +54,13 @@ def get_all_users():
     return data_manager.get_all_users()
 
 
-def add_new_user():
-    name = request.form.get("name")
-    return data_manager.add_user({"name": name})
+def add_new_user(name: str):
+    result = data_manager.add_user({"name": name})
+
+    if result.get("status") == "False":
+        raise ValueError(result.get("message"))
+
+    return result
 
 
 def get_user_movie_record(user_id: int, movie_id: int):

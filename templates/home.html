@@ -12,7 +12,7 @@
 <div class="container mt-5 ">
     <!--search bar-->
     <div class="row" id="search-bar">
-        <form method="GET" action="{{ url_for('movie_bp.home') }}" class="form-inline">
+        <form method="GET" action="{{ url_for('home') }}" class="form-inline">
             <div class="row">
                 <div class="col-lg-4">
                     <input type="text" class="form-control mb-2 mr-sm-2" name="search" value="{{ search_query }}" placeholder="Search name...">
@@ -84,19 +84,19 @@
     <ul class="pagination justify-content-center" id="pagination">
         {% if current_page > 1 %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('movie_bp.home', page=current_page-1, search=search_query, sort_by=request.args.get('sort_by', 'rating'), sort_order=request.args.get('sort_order', 'asc')) }}">Previous</a>
+            <a class="page-link" href="{{ url_for('home', page=current_page-1, search=search_query, sort_by=request.args.get('sort_by', 'rating'), sort_order=request.args.get('sort_order', 'asc')) }}">Previous</a>
         </li>
         {% endif %}
 
         {% for page_num in range(1, pages + 1) %}
         <li class="page-item {% if page_num == current_page %}active{% endif %}">
-            <a class="page-link" href="{{ url_for('movie_bp.home', page=page_num, search=search_query, sort_by=request.args.get('sort_by', 'rating'), sort_order=request.args.get('sort_order', 'asc')) }}">{{ page_num }}</a>
+            <a class="page-link" href="{{ url_for('home', page=page_num, search=search_query, sort_by=request.args.get('sort_by', 'rating'), sort_order=request.args.get('sort_order', 'asc')) }}">{{ page_num }}</a>
         </li>
         {% endfor %}
 
         {% if current_page < pages %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('movie_bp.home', page=current_page+1, search=search_query, sort_by=request.args.get('sort_by', 'rating'), sort_order=request.args.get('sort_order', 'asc')) }}">Next</a>
+            <a class="page-link" href="{{ url_for('home', page=current_page+1, search=search_query, sort_by=request.args.get('sort_by', 'rating'), sort_order=request.args.get('sort_order', 'asc')) }}">Next</a>
         </li>
         {% endif %}
     </ul>

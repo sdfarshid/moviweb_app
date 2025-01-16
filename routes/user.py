@@ -6,7 +6,7 @@ from utils import load_page
 user_bp = Blueprint('user_bp', __name__)
 
 
-@user_bp.route('/users', endpoint="list_users")
+@user_bp.route('/list', endpoint="list_users")
 def list_users():
     users = user_service.get_all_users()
     return load_page("users", {"title": "Users List", "users": users})
@@ -20,9 +20,21 @@ def add_user():
 
 
 def _handel_add_user_request():
-    result = user_service.add_new_user()
-    flash_category = "success" if result.get("status") else "error"
-    flash(f"{result.get('message')}", f"{flash_category}")
+    name = request.form.get("name")
+    if not name or name is None:
+        flash(f"Name cant be empty ", f"error")
+        return redirect(url_for("user_bp.list_users"))
+
+    try:
+        result = user_service.add_new_user(name)
+        flash_category = "success"
+        message = result.get('message')
+    except ValueError() as error:
+        flash_category = "error"
+        message = error
+    finally:
+        flash(f"{message}", f"{flash_category}")
+
     return redirect(url_for("user_bp.list_users"))
 
 

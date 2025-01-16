@@ -14,33 +14,6 @@ movie_bp = Blueprint('movie_bp', __name__)
 
 
 
-@movie_bp.route('/', endpoint="home")
-def home():
-    MOVIE_PER_PAG = 4
-    search_query = request.args.get('search', "")
-    sort_by = request.args.get('sort_by', 'rating')  # Default sorting by rating
-    sort_order = request.args.get('sort_order', 'asc')  # Default sorting type
-    page = request.args.get('page', 1, type=int)  # Current page number
-    per_page = request.args.get('per_page', MOVIE_PER_PAG, type=int)  # Number of items per page
-
-    movies, total, pages, current_page = movie_service.get_movies(
-        sort_by=sort_by,
-        order=sort_order,
-        search_query=search_query,
-        page=page,
-        per_page=per_page
-    )
-    args = {
-        "title": "Home",
-        "movies": movies,
-        "search_query": search_query,
-        "pages": pages,
-        "current_page": current_page,
-    }
-    return load_page("home", args)
-
-
-
 @movie_bp.route('/<int:user_id>/add_movie', methods=["GET", "POST"], endpoint="add_movie")
 def add_movie(user_id):
     try:

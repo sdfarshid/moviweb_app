@@ -15,5 +15,17 @@ class Movie(db.Model):
     # Many To Many via UserMovie
     user_movies = db.relationship('UserMovie', back_populates='movie')
 
-def __str__(self):
-    return f"movie: {self.title}"
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'director': self.director,
+            'year': self.year,
+            'rating': self.rating,
+            'poster': self.poster,
+            'imdbID': self.imdbID,
+            'genre': self.genre,
+        }
+
+    def __str__(self):
+        return f"movie: {self.title}"

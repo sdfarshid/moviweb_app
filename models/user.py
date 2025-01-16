@@ -18,3 +18,9 @@ class User(db.Model):
 
     def __str__(self):
         return f"User: {self.name}"
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+        }
